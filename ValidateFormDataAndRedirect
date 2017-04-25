@@ -1,0 +1,43 @@
+public class DemoController {
+    // Khởi  tạo 1 đối tượng sử dụng cho edit project
+    private Project projectEditAttibute = new Project();
+  
+    @RequestMapping(value = "project/edit/{id}", method = RequestMethod.GET)
+    private String update(@PathVariable long id, ModelMap model) {
+        // Lấy thông tin project edit
+        Project project = projectService.getById(id);
+        
+        // Nếu chưa tồn tại đối tượng projectEditAttibute cụ thể thì set thủ công
+        if (this.projectEditAttibute.getId() == null) {
+            model.put("projectEditAttibute", project);
+        }
+        // Gán thông tin cho projectEditAttibute
+        this.projectEditAttibute = project
+        ....
+        
+        return "project/edit";
+    }
+    
+    @RequestMapping(value = "project/edit", method = RequestMethod.POST)
+    public String editProject(ModelMap model, HttpServletRequest request,
+            @Valid @ModelAttribute(value = "project") Project project, BindingResult bindingResult,
+            final RedirectAttributes redirectAttributes) {
+            
+        if (bindingResult.hasErrors()) {
+            // Nếu gặp lỗi, gán thông tin đối tượng project từ form gửi lên vào projectEditAttibute
+            this.projectEditAttibute = project;
+            
+            // Chuyển về trang edit GET
+            return "redirect:/project/edit/" + project.getId();
+        }
+        
+        return ....;
+    }
+    
+    // Khởi tạo giá trị cho Model Key = projectEditAttibute trước khi gọi đến RequestMapping
+    @ModelAttribute("projectEditAttibute")
+    public String addProjectEditAttribute() {
+
+        return this.projectEditAttibute;
+    }
+}
