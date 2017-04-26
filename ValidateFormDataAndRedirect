@@ -1,19 +1,11 @@
 public class DemoController {
-    // Khởi  tạo 1 đối tượng sử dụng cho edit project
-    private Project projectEditAttibute = new Project();
-  
     @RequestMapping(value = "project/edit/{id}", method = RequestMethod.GET)
     private String update(@PathVariable long id, ModelMap model) {
-        // Lấy thông tin project edit
-        Project project = projectService.getById(id);
-        
-        // Nếu chưa tồn tại đối tượng projectEditAttibute cụ thể thì set thủ công
-        if (this.projectEditAttibute.getId() == null) {
-            model.put("projectEditAttibute", project);
+        // Nếu chưa tồn tại model key notification, set thông tin của project đang edit
+        // Nếu tồn tại rồi thì sẽ là thông tin nơi redirect gửi sang
+        if (!model.containsAttribute("notification")) {
+            model.addAttribute("notification", projectService.getById(id));
         }
-        // Gán thông tin cho projectEditAttibute
-        this.projectEditAttibute = project
-        ....
         
         return "project/edit";
     }
@@ -22,22 +14,14 @@ public class DemoController {
     public String editProject(ModelMap model, HttpServletRequest request,
             @Valid @ModelAttribute(value = "project") Project project, BindingResult bindingResult,
             final RedirectAttributes redirectAttributes) {
-            
+        // Nếu gặp lỗi thì return lại cho màn hình get    
         if (bindingResult.hasErrors()) {
-            // Nếu gặp lỗi, gán thông tin đối tượng project từ form gửi lên vào projectEditAttibute
-            this.projectEditAttibute = project;
-            
-            // Chuyển về trang edit GET
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.project", bindingResult);
+            redirectAttributes.addFlashAttribute("project", project);
+
             return "redirect:/project/edit/" + project.getId();
         }
         
         return ....;
-    }
-    
-    // Khởi tạo giá trị cho Model Key = projectEditAttibute trước khi gọi đến RequestMapping
-    @ModelAttribute("projectEditAttibute")
-    public String addProjectEditAttribute() {
-
-        return this.projectEditAttibute;
     }
 }
